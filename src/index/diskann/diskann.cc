@@ -640,6 +640,26 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
 #ifdef NOT_COMPILE_FOR_SWIG
             knowhere_diskann_search_hops.Observe(stats.n_hops);
 #endif
+            //  auto mean_latency = diskann::get_mean_stats<float>(
+            // stats, nq, [](const diskann::QueryStats &stats) { return stats.total_us; });
+
+            // auto latency_999 = diskann::get_percentile_stats<float>(
+            //     stats, nq, 0.999, [](const diskann::QueryStats &stats) { return stats.total_us; });
+
+            // auto mean_ios = diskann::get_mean_stats<uint32_t>(stats, nq,
+            //                                                 [](const diskann::QueryStats &stats) { return stats.n_ios; });
+
+            // auto mean_cpuus = diskann::get_mean_stats<float>(stats, nq,
+            //                                                 [](const diskann::QueryStats &stats) { return stats.cpu_us; });
+            // auto mean_hops = diskann::get_mean_stats<unsigned>(stats, nq,
+            //                                                 [](const diskann::QueryStats &stats) { return stats.n_hops; });
+            LOG_KNOWHERE_INFO_ << "============================" << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Mean Latency" << stats. << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Latency 999" << latency_999 << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean I/Os" << stats.n_ios << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean CPUs" << stats.cpu_us << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean Hops" << stats.n_hops << std::endl;
+            LOG_KNOWHERE_INFO_ << "Cache hits" << stats.n_cache_hits << std::endl;
         }));
     }
 
