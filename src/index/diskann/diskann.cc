@@ -656,10 +656,10 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
             LOG_KNOWHERE_INFO_ << "============================" << std::endl;
             // LOG_KNOWHERE_INFO_ << "Mean Latency" << stats. << std::endl;
             // LOG_KNOWHERE_INFO_ << "Latency 999" << latency_999 << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean I/Os" << stats.n_ios << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean CPUs" << stats.cpu_us << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean Hops" << stats.n_hops << std::endl;
-            LOG_KNOWHERE_INFO_ << "Cache hits" << stats.n_cache_hits << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean I/Os " << stats.n_ios << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean CPUs " << stats.cpu_us << std::endl;
+            LOG_KNOWHERE_INFO_ << "Mean Hops " << stats.n_hops << std::endl;
+            LOG_KNOWHERE_INFO_ << "Cache hits " << stats.n_cache_hits << std::endl;
         }));
     }
 
