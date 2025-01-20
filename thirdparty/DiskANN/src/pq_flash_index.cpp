@@ -962,6 +962,8 @@ namespace diskann {
     _u64 &sector_scratch_idx = query_scratch->sector_idx;
     knowhere::ResultMaxHeap<float, _u64> max_heap(k_search);
     Timer                                io_timer, query_timer;
+  
+    LOG_KNOWHERE_INFO_ << "Brute force searching...";
 
     // scan un-marked points and calculate pq dists
     for (_u64 id = 0; id < num_points; ++id) {
