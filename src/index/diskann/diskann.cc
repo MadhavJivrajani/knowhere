@@ -631,14 +631,16 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
 
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(nq);
+    auto s = std::chrono::high_resolution_clock::now();
+    auto stats = new diskann::QueryStats[nq];
     for (int64_t row = 0; row < nq; ++row) {
         futures.emplace_back(search_pool_->push([&, index = row, p_id_ptr = p_id.get(), p_dist_ptr = p_dist.get()]() {
-            diskann::QueryStats stats;
+            // diskann::QueryStats stats;
             pq_flash_index_->cached_beam_search(xq + (index * dim), k, lsearch, p_id_ptr + (index * k),
-                                                p_dist_ptr + (index * k), beamwidth, false, &stats, feder_result,
+                                                p_dist_ptr + (index * k), beamwidth, false, stats+row, feder_result,
                                                 bitset, filter_ratio);
 #ifdef NOT_COMPILE_FOR_SWIG
-            knowhere_diskann_search_hops.Observe(stats.n_hops);
+            // knowhere_diskann_search_hops.Observe(stats.n_hops);
 #endif
             //  auto mean_latency = diskann::get_mean_stats<float>(
             // stats, nq, [](const diskann::QueryStats &stats) { return stats.total_us; });
@@ -653,19 +655,48 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
             //                                                 [](const diskann::QueryStats &stats) { return stats.cpu_us; });
             // auto mean_hops = diskann::get_mean_stats<unsigned>(stats, nq,
             //                                                 [](const diskann::QueryStats &stats) { return stats.n_hops; });
-            LOG_KNOWHERE_INFO_ << "============================" << std::endl;
-            // LOG_KNOWHERE_INFO_ << "Mean Latency" << stats. << std::endl;
-            // LOG_KNOWHERE_INFO_ << "Latency 999" << latency_999 << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean I/Os " << stats.n_ios << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean CPUs " << stats.cpu_us << std::endl;
-            LOG_KNOWHERE_INFO_ << "Mean Hops " << stats.n_hops << std::endl;
-            LOG_KNOWHERE_INFO_ << "Cache hits " << stats.n_cache_hits << std::endl;
+            // LOG_KNOWHERE_INFO_ << "============================" << std::endl;
+            // // LOG_KNOWHERE_INFO_ << "Mean Latency" << stats. << std::endl;
+            // // LOG_KNOWHERE_INFO_ << "Latency 999" << latency_999 << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Mean I/Os " << stats.n_ios << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Mean CPUs " << stats.cpu_us << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Mean Hops " << stats.n_hops << std::endl;
+            // LOG_KNOWHERE_INFO_ << "Cache hits " << stats.n_cache_hits << std::endl;
         }));
     }
 
     if (TryDiskANNCall([&]() { WaitAllSuccess(futures); }) != Status::success) {
         return expected<DataSetPtr>::Err(Status::diskann_inner_error, "some search failed");
     }
+
+    auto e = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = e - s;
+    double qps = (1.0 * nq) / (1.0 * diff.count());
+
+    auto mean_latency = diskann::get_mean_stats<float>(
+    stats, nq, [](const diskann::QueryStats &stats) { return stats.total_us; });
+
+    auto latency_999 = diskann::get_percentile_stats<float>(
+        stats, nq, 0.999, [](const diskann::QueryStats &stats) { return stats.total_us; });
+
+    auto mean_ios = diskann::get_mean_stats<uint32_t>(stats, nq,
+                                                    [](const diskann::QueryStats &stats) { return stats.n_ios; });
+
+    auto mean_cpuus = diskann::get_mean_stats<float>(stats, nq,
+                                                    [](const diskann::QueryStats &stats) { return stats.cpu_us; });
+    auto mean_hops = diskann::get_mean_stats<unsigned>(stats, nq,
+                                                    [](const diskann::QueryStats &stats) { return stats.n_hops; });
+
+    auto mean_cache_hits = diskann::get_mean_stats<unsigned>(stats, nq,
+                                                    [](const diskann::QueryStats &stats) { return stats.n_cache_hits; });
+    LOG_KNOWHERE_INFO_ << "============================" << std::endl;
+    LOG_KNOWHERE_INFO_ << "Mean Latency " << mean_latency << std::endl;
+    LOG_KNOWHERE_INFO_ << "Latency 999 " << latency_999 << std::endl;
+    LOG_KNOWHERE_INFO_ << "Mean I/Os " << mean_ios << std::endl;
+    LOG_KNOWHERE_INFO_ << "Mean CPUs " << mean_cpuus << std::endl;
+    LOG_KNOWHERE_INFO_ << "Mean Hops " << mean_hops << std::endl;
+    LOG_KNOWHERE_INFO_ << "Cache hits " << mean_cache_hits << std::endl;
+    LOG_KNOWHERE_INFO_ << "QPS " << qps << std::endl;
 
     auto res = GenResultDataSet(nq, k, std::move(p_id), std::move(p_dist));
 
