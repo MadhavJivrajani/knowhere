@@ -463,13 +463,13 @@ DiskANNIndexNode<DataType>::Deserialize(const BinarySet& binset, std::shared_ptr
     // load cache
     auto cached_nodes_file = diskann::get_cached_nodes_file(index_prefix_);
     std::vector<uint32_t> node_list;
-    if (file_exists(cached_nodes_file)) {
-        LOG_KNOWHERE_INFO_ << "Reading cached nodes from file.";
-        size_t num_nodes, nodes_id_dim;
-        std::unique_ptr<uint32_t[]> cached_nodes_ids = nullptr;
-        diskann::load_bin<uint32_t>(cached_nodes_file, cached_nodes_ids, num_nodes, nodes_id_dim);
-        node_list.assign(cached_nodes_ids.get(), cached_nodes_ids.get() + num_nodes);
-    } else {
+    // if (file_exists(cached_nodes_file)) {
+    //     LOG_KNOWHERE_INFO_ << "Reading cached nodes from file.";
+    //     size_t num_nodes, nodes_id_dim;
+    //     std::unique_ptr<uint32_t[]> cached_nodes_ids = nullptr;
+    //     diskann::load_bin<uint32_t>(cached_nodes_file, cached_nodes_ids, num_nodes, nodes_id_dim);
+    //     node_list.assign(cached_nodes_ids.get(), cached_nodes_ids.get() + num_nodes);
+    // } else {
         auto num_nodes_to_cache = GetCachedNodeNum(prep_conf.search_cache_budget_gb.value(),
                                                    pq_flash_index_->get_data_dim(), pq_flash_index_->get_max_degree());
         if (num_nodes_to_cache > pq_flash_index_->get_num_points() / 3) {
@@ -479,7 +479,7 @@ DiskANNIndexNode<DataType>::Deserialize(const BinarySet& binset, std::shared_ptr
         }
         if (num_nodes_to_cache > 0) {
             LOG_KNOWHERE_INFO_ << "Caching " << num_nodes_to_cache << " sample nodes around medoid(s).";
-            if (prep_conf.use_bfs_cache.value()) {
+            if (true) {
                 LOG_KNOWHERE_INFO_ << "Use bfs to generate cache list";
                 if (TryDiskANNCall([&]() { pq_flash_index_->cache_bfs_levels(num_nodes_to_cache, node_list); }) !=
                     Status::success) {
@@ -496,7 +496,7 @@ DiskANNIndexNode<DataType>::Deserialize(const BinarySet& binset, std::shared_ptr
                     return Status::diskann_inner_error;
                 }
             }
-        }
+        // }
         LOG_KNOWHERE_INFO_ << "End of preparing diskann index.";
     }
 
