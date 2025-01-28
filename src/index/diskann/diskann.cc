@@ -629,6 +629,8 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
     auto p_id = std::make_unique<int64_t[]>(k * nq);
     auto p_dist = std::make_unique<DistType[]>(k * nq);
 
+    beamwidth = 2;
+
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(nq);
     auto s = std::chrono::high_resolution_clock::now();
@@ -697,6 +699,7 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
     LOG_KNOWHERE_INFO_ << "Mean Hops " << mean_hops << std::endl;
     LOG_KNOWHERE_INFO_ << "Cache hits " << mean_cache_hits << std::endl;
     LOG_KNOWHERE_INFO_ << "QPS " << qps << std::endl;
+    LOG_KNOWHERE_INFO_ << "Beamwdith " << beamwidth << std::endl;
 
     auto res = GenResultDataSet(nq, k, std::move(p_id), std::move(p_dist));
 
