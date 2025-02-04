@@ -629,7 +629,7 @@ DiskANNIndexNode<DataType>::Search(const DataSetPtr dataset, std::unique_ptr<Con
     auto p_id = std::make_unique<int64_t[]>(k * nq);
     auto p_dist = std::make_unique<DistType[]>(k * nq);
 
-    beamwidth = 2;
+    beamwidth = 4;
 
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(nq);
