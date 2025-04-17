@@ -23,8 +23,6 @@
 #include "comp/index_param.h"
 #include "knowhere/range_util.h"
 #include "knowhere/sparse_utils.h"
-#include "knowhere/log.h"
-
 
 namespace knowhere {
 
@@ -201,11 +199,11 @@ class DataSet : public std::enable_shared_from_this<const DataSet> {
         auto it = this->data_.find(meta::TENSOR);
         if (it != this->data_.end()) {
             const void* res = *std::get_if<3>(&it->second);
-            LOG_KNOWHERE_INFO_ << "AM HEREH!!!\n";
+            std::cout << "AM HEREH!!!\n";
             for (auto i = 0; i < GetDim(); i++) {
-                LOG_KNOWHERE_INFO_ << ((float*)res)[i];
+                std::cout << ((float*)res)[i];
             }
-            LOG_KNOWHERE_INFO_ << "\n";
+            std::cout << "\n";
             return res;
         }
         return nullptr;
