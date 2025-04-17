@@ -201,7 +201,7 @@ class DataSet : public std::enable_shared_from_this<const DataSet> {
             const void* res = *std::get_if<3>(&it->second);
             std::cout << "AM HEREH!!!\n";
             for (auto i = 0; i < GetDim(); i++) {
-                std::cout << ((float*)res)[i];
+                std::cout << ((float*)res)[i] << " ";
             }
             std::cout << "\n";
             return res;
