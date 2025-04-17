@@ -23,6 +23,8 @@
 #include "comp/index_param.h"
 #include "knowhere/range_util.h"
 #include "knowhere/sparse_utils.h"
+#include "knowhere/log.h"
+
 
 namespace knowhere {
 
