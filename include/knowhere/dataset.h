@@ -199,11 +199,11 @@ class DataSet : public std::enable_shared_from_this<const DataSet> {
         auto it = this->data_.find(meta::TENSOR);
         if (it != this->data_.end()) {
             const void* res = *std::get_if<3>(&it->second);
-            std::cout << "AM HEREH!!!\n";
-            for (auto i = 0; i < GetDim(); i++) {
-                std::cout << ((float*)res)[i] << " ";
-            }
-            std::cout << "\n";
+            // std::cout << "AM HEREH!!!\n";
+            // for (auto i = 0; i < GetDim(); i++) {
+            //     std::cout << ((float*)res)[i] << " ";
+            // }
+            // std::cout << "\n";
             return res;
         }
         return nullptr;

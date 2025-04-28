@@ -1488,7 +1488,8 @@ namespace diskann {
       }
       indices[i] = full_retset[i].id;
       if (distances != nullptr) {
-        distances[i] = full_retset[i].distance;
+        // MINIO: remove distance
+        // distances[i] = full_retset[i].distance;
         if (metric == diskann::Metric::INNER_PRODUCT) {
           // convert l2 distance to ip distance
           distances[i] = 1.0 - distances[i] / 2.0;

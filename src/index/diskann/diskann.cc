@@ -472,6 +472,8 @@ DiskANNIndexNode<DataType>::Deserialize(const BinarySet& binset, std::shared_ptr
     // } else {
         auto num_nodes_to_cache = GetCachedNodeNum(prep_conf.search_cache_budget_gb.value(),
                                                    pq_flash_index_->get_data_dim(), pq_flash_index_->get_max_degree());
+        // MINIO: No caching
+        num_nodes_to_cache = 0;
         if (num_nodes_to_cache > pq_flash_index_->get_num_points() / 3) {
             LOG_KNOWHERE_ERROR_ << "Failed to generate cache, num_nodes_to_cache(" << num_nodes_to_cache
                                 << ") is larger than 1/3 of the total data number.";
